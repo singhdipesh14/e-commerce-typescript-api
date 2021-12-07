@@ -1,6 +1,5 @@
 import { StatusCodes } from "http-status-codes"
-import CustomAPIError from "../errors"
-import { Response, Request, Errback, NextFunction } from "express"
+import { Response, Request, NextFunction } from "express"
 const errorHandlerMiddleware = (
 	err: any,
 	req: Request,
@@ -13,9 +12,10 @@ const errorHandlerMiddleware = (
 		msg: err.message || "Something went wrong try again later",
 	}
 	if (err.name === "ValidationError") {
-		customError.msg = Object.values(err.errors)
-			.map((item: any) => item.message)
-			.join(",")
+		if (err.errors)
+			customError.msg = Object.values(err.errors)
+				.map((item: any) => item.message)
+				.join(",")
 		customError.statusCode = 400
 	}
 	if (err.code && err.code === 11000) {
