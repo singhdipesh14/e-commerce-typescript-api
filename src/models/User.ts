@@ -2,7 +2,15 @@ import mongoose from "mongoose"
 import validator from "validator"
 import bcrypt from "bcryptjs"
 
-const UserSchema = new mongoose.Schema({
+export type UserSchemaType = {
+	name: string
+	email: string
+	password: string
+	role: string
+	comparePassword: (candidatePassword: string) => boolean
+}
+
+const UserSchema = new mongoose.Schema<UserSchemaType>({
 	name: {
 		type: String,
 		required: [true, "Please provide name"],
@@ -42,6 +50,6 @@ UserSchema.methods.comparePassword = async function (
 	return isMatch
 }
 
-const UserModel = mongoose.model("user", UserSchema)
+const UserModel = mongoose.model<UserSchemaType>("user", UserSchema)
 
 export default UserModel
