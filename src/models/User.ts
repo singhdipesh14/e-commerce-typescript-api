@@ -50,6 +50,6 @@ UserSchema.methods.comparePassword = async function (
 	return isMatch
 }
 
-const UserModel = mongoose.model<UserSchemaType>("user", UserSchema)
+const UserModel = mongoose.model<UserSchemaType>("users", UserSchema)
 
 export default UserModel

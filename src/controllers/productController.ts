@@ -1,10 +1,10 @@
 import { Request, Response } from "express"
+import { v2 as cloudinary } from "cloudinary"
 import Product from "../models/Product"
 import { StatusCodes } from "http-status-codes"
 import CustomError from "../errors"
 import { HydratedDocument } from "mongoose"
 import { ProductSchemaType } from "../models/Product"
-import path from "path"
 import fs from "fs"
 
 export const createProduct = async (req: Request, res: Response) => {
@@ -61,7 +61,6 @@ export const deleteProduct = async (req: Request, res: Response) => {
 }
 
 export const uploadImage = async (req: Request, res: Response) => {
-	console.log(req.files)
 	if (!req.files) throw new CustomError.BadRequestError("No file Uploaded")
 	const productImage = req.files.image
 	if (Array.isArray(productImage)) {
@@ -74,10 +73,10 @@ export const uploadImage = async (req: Request, res: Response) => {
 	if (productImage.size > maxSize) {
 		throw new CustomError.BadRequestError("Image size must be less than 1MB")
 	}
-	const imagePath = path.join(
-		__dirname,
-		"../public/uploads/" + `${productImage.name}`
-	)
-	await productImage.mv(imagePath)
-	res.status(StatusCodes.OK).json({ image: `/uploads/${productImage.name}` })
+	const result = await cloudinary.uploader.upload(productImage.tempFilePath, {
+		use_filename: true,
+		folder: "e-commerce-typescript",
+	})
+	fs.unlinkSync(productImage.tempFilePath)
+	return res.status(StatusCodes.OK).json({ image: result.secure_url })
 }
