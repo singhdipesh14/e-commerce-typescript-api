@@ -1,3 +1,4 @@
+import { number } from "joi"
 import mongoose, { Model, Schema, Types } from "mongoose"
 import Review from "./Review"
 
@@ -13,6 +14,7 @@ export type ProductSchemaType = {
 	freeShipping: boolean
 	inventory: number
 	averageRating: number
+	numOfReviews: number
 	user: Types.ObjectId
 }
 
@@ -75,6 +77,10 @@ const ProductSchema = new mongoose.Schema<ProductSchemaType, any>(
 			default: 15,
 		},
 		averageRating: {
+			type: Number,
+			default: 0,
+		},
+		numOfReviews: {
 			type: Number,
 			default: 0,
 		},
