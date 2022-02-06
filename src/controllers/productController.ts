@@ -19,7 +19,7 @@ export const getAllProducts = async (req: Request, res: Response) => {
 }
 export const getSingleProduct = async (req: Request, res: Response) => {
 	const product: HydratedDocument<ProductSchemaType> | null =
-		await Product.findOne({ _id: req.params.id })
+		await Product.findOne({ _id: req.params.id }).populate("reviews")
 	if (!product) {
 		throw new CustomError.NotFoundError(
 			`No product found with id : ${req.params.id}`

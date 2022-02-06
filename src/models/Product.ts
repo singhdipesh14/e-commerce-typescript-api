@@ -1,4 +1,5 @@
 import mongoose, { Model, Schema, Types } from "mongoose"
+import Review from "./Review"
 
 export type ProductSchemaType = {
 	name: string
@@ -25,7 +26,7 @@ const ProductSchema = new mongoose.Schema<ProductSchemaType, any>(
 		},
 		price: {
 			type: Number,
-			required: [true, "Please provdie price"],
+			required: [true, "Please provide price"],
 			default: 0,
 		},
 		description: {
@@ -85,8 +86,22 @@ const ProductSchema = new mongoose.Schema<ProductSchemaType, any>(
 	},
 	{
 		timestamps: true,
+		toJSON: { virtuals: true },
+		toObject: { virtuals: true },
 	}
 )
+
+ProductSchema.virtual("reviews", {
+	ref: "reviews",
+	localField: "_id",
+	foreignField: "product",
+	justOne: false,
+	match: { rating: 5 },
+})
+
+ProductSchema.pre("remove", async function () {
+	await Review.deleteMany({ product: this._id })
+})
 
 const ProductModel = mongoose.model<ProductSchemaType>(
 	"products",
