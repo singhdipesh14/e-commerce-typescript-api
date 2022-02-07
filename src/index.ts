@@ -6,6 +6,11 @@ import morgan from "morgan"
 import cookieParser from "cookie-parser"
 import fileUpload from "express-fileupload"
 import { v2 as cloudinary } from "cloudinary"
+import rateLimiter from "express-rate-limit"
+import helmet from "helmet"
+import xss from "xss-clean"
+import cors from "cors"
+import ExpressMongoSanitize from "express-mongo-sanitize"
 
 // middlewares
 import notFoundMiddleware from "./middleware/notFound"
@@ -29,22 +34,26 @@ cloudinary.config({
 	api_secret: process.env.CLOUDINARY_SECRET,
 })
 
+//security
+app.set("trust proxy", 1)
+app.use(
+	rateLimiter({
+		windowMs: 15 * 60 * 1000,
+		max: 60,
+	})
+)
+app.use(helmet())
+app.use(cors())
+app.use(xss())
+app.use(ExpressMongoSanitize())
+
 // applying middlewares
 app.use(morgan("tiny"))
 app.use(express.json())
 // can be anything, not necessarily JWT_SECRET
 app.use(cookieParser(process.env.JWT_SECRET))
-app.use(express.static("./public"))
+app.use(express.static("public"))
 app.use(fileUpload({ useTempFiles: true }))
-
-app.get("/", (req: Request, res: Response) => {
-	res.send("hello world")
-})
-
-app.get("/api/v1", (req: Request, res: Response) => {
-	console.log(req.signedCookies)
-	res.send("e-commerce-api")
-})
 
 app.use("/api/v1/auth", authRouter)
 app.use("/api/v1/users", userRouter)
