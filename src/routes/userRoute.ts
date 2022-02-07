@@ -1,4 +1,5 @@
 import express from "express"
+import { getCurrentUserOrders } from "../controllers/orderController"
 import {
 	getAllUsers,
 	getSingleUser,
@@ -19,6 +20,8 @@ router
 	.get(authenticateUser, authorizePermissions("admin"), getAllUsers)
 
 router.route("/showMe").get(authenticateUser, showCurrentUser)
+
+router.route("/showAllMyOrders").get(authenticateUser, getCurrentUserOrders)
 
 router.route("/updateUser").patch(authenticateUser, updateUser)
 
